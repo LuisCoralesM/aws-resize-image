@@ -10,7 +10,7 @@ import { Readable } from "stream";
 import { ulid } from "ulidx";
 import { Event } from "../types/event";
 import { s3 } from "../utils/aws";
-import { sizes } from "../utils/sizes";
+import { sizes } from "../utils/images";
 
 const dbClient = new DynamoDBClient();
 const docClient = DynamoDBDocumentClient.from(dbClient);

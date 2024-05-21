@@ -1,3 +1,9 @@
+export const sizes = [
+  [120, 120],
+  [160, 120],
+  [400, 300],
+];
+
 export function addUrlToImage(item: Record<string, any>) {
   const baseUrl =
     "https://apilambdaresizeimage-resizedimages56b002a3-xpfc8i8asgfb.s3.us-east-1.amazonaws.com/";
