@@ -11,6 +11,8 @@ import { LambdaDestination } from "aws-cdk-lib/aws-s3-notifications";
 import { join } from "path";
 
 const lambdasPath = "../lambdas";
+const s3_url =
+  "https://apilambdaresizeimages-bucketresizedimages73c8513e-xsoq4zlyk6kt.s3.us-east-1.amazonaws.com/";
 
 export class ApiLambdaCrudDynamoDBStack extends Stack {
   constructor(app: App, id: string) {
@@ -46,7 +48,7 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
       environment: {
         PRIMARY_KEY: "itemId",
         TABLE_NAME: dynamoTable.tableName,
-        S3_BASE_URL: process.env.S3_BASE_URL!,
+        S3_BASE_URL: s3_url,
       },
       runtime: Runtime.NODEJS_20_X,
     };
@@ -55,12 +57,18 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
     const getOneLambda = new NodejsFunction(this, "getOneItemFunction", {
       entry: join(__dirname, lambdasPath, "get-one.ts"),
       ...nodeJsFunctionProps,
-      environment: { DYNAMO_TABLE_NAME: dynamoTable.tableName },
+      environment: {
+        DYNAMO_TABLE_NAME: dynamoTable.tableName,
+        S3_BASE_URL: s3_url,
+      },
     });
     const getAllLambda = new NodejsFunction(this, "getAllItemsFunction", {
       entry: join(__dirname, lambdasPath, "get-all.ts"),
       ...nodeJsFunctionProps,
-      environment: { DYNAMO_TABLE_NAME: dynamoTable.tableName },
+      environment: {
+        DYNAMO_TABLE_NAME: dynamoTable.tableName,
+        S3_BASE_URL: s3_url,
+      },
     });
     const uploadItemLambda = new NodejsFunction(this, "uploadItemFunction", {
       entry: join(__dirname, lambdasPath, "upload-item.ts"),
