@@ -48,7 +48,6 @@ export const handler = async (event: Event) => {
           resizedImages[1],
           resizedImages[2]
         );
-        console.log("Images added to database");
       })
     );
   } catch (error) {

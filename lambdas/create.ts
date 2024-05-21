@@ -15,20 +15,15 @@ type PresignedPostParams = {
 export const handler = async (params: PresignedPostParams): Promise<any> => {
   const { Key, ContentType, ContentLengthRange, Bucket, Expires } = params;
 
-  console.log(params);
-
   try {
-    const a = await createPresignedPost(s3, {
+    const results = await createPresignedPost(s3, {
       Bucket: process.env.S3_BUCKET!,
       Expires: Expires || 3600,
       Key: ulid() + ".jpg",
     });
 
-    console.log(a);
-
-    return { statusCode: 200, body: JSON.stringify(a) };
+    return { statusCode: 200, body: JSON.stringify(results) };
   } catch (error) {
-    console.log(error);
     return { statusCode: 500, body: JSON.stringify(error) };
   }
 };
