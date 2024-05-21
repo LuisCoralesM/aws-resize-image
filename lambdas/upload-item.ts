@@ -1,8 +1,6 @@
-import { S3Client } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
 import { ulid } from "ulidx";
-
-const s3 = new S3Client();
+import { s3 } from "../utils/aws";
 
 type PresignedPostParams = {
   Bucket: string;

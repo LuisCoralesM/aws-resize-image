@@ -63,8 +63,8 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
       entry: join(__dirname, lambdasPath, "get-all.ts"),
       ...nodeJsFunctionProps,
     });
-    const createOneLambda = new NodejsFunction(this, "createItemFunction", {
-      entry: join(__dirname, lambdasPath, "create.ts"),
+    const uploadItemLambda = new NodejsFunction(this, "uploadItemFunction", {
+      entry: join(__dirname, lambdasPath, "upload-item.ts"),
       ...nodeJsFunctionProps,
       environment: { S3_BUCKET: s3BucketOriginal.bucketName },
     });
@@ -102,13 +102,13 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
     // Grant the Lambda function read access to the DynamoDB table
     dynamoTable.grantReadWriteData(getAllLambda);
     dynamoTable.grantReadWriteData(getOneLambda);
-    dynamoTable.grantReadWriteData(createOneLambda);
+    dynamoTable.grantReadWriteData(uploadItemLambda);
     dynamoTable.grantReadWriteData(deleteOneLambda);
     dynamoTable.grantReadWriteData(resizeImageLambda);
 
     // Integrate the Lambda functions with the API Gateway resource
     const getAllIntegration = new LambdaIntegration(getAllLambda);
-    const createOneIntegration = new LambdaIntegration(createOneLambda);
+    const uploadItemIntegration = new LambdaIntegration(uploadItemLambda);
     const getOneIntegration = new LambdaIntegration(getOneLambda);
     const deleteOneIntegration = new LambdaIntegration(deleteOneLambda);
 
@@ -119,13 +119,13 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
 
     const items = api.root.addResource("items");
     items.addMethod("GET", getAllIntegration);
-    items.addMethod("POST", createOneIntegration);
+    items.addMethod("POST", uploadItemIntegration);
 
     const singleItem = items.addResource("{id}");
     singleItem.addMethod("GET", getOneIntegration);
     singleItem.addMethod("DELETE", deleteOneIntegration);
 
-    s3BucketOriginal.grantReadWrite(createOneLambda);
+    s3BucketOriginal.grantReadWrite(uploadItemLambda);
     s3BucketOriginal.grantReadWrite(resizeImageLambda);
     s3BucketResized.grantReadWrite(resizeImageLambda);
   }
