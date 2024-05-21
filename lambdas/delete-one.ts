@@ -1,8 +1,13 @@
 import { db } from "../utils/aws";
 
-export const handler = async (event: any = {}): Promise<any> => {
-  const requestedItemId = event.pathParameters.id;
-  if (!requestedItemId) {
+type EventParams = {
+  pathParameters: { id: string };
+};
+
+export const handler = async (event: EventParams): Promise<any> => {
+  const id = event.pathParameters.id;
+
+  if (!id) {
     return {
       statusCode: 400,
       body: `Error: You are missing the path parameter id`,
@@ -10,15 +15,15 @@ export const handler = async (event: any = {}): Promise<any> => {
   }
 
   const params = {
-    TableName: process.env.TABLE_NAME,
+    TableName: process.env.DYNAMO_TABLE_NAME,
     Key: {
-      [process.env.PRIMARY_KEY!]: requestedItemId,
+      itemId: id,
     },
   };
 
   try {
     await db.delete(params);
-    return { statusCode: 200, body: "" };
+    return { statusCode: 200, body: "Item deleted successfully" };
   } catch (dbError) {
     return { statusCode: 500, body: JSON.stringify(dbError) };
   }

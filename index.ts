@@ -30,7 +30,7 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
 
     const s3BucketResized = new s3.Bucket(this, "resizedImages", {
       objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      publicReadAccess: true,
     });
 
     const dynamoTable = new Table(this, "items", {
@@ -58,19 +58,25 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
     const getOneLambda = new NodejsFunction(this, "getOneItemFunction", {
       entry: join(__dirname, lambdasPath, "get-one.ts"),
       ...nodeJsFunctionProps,
+      environment: { DYNAMO_TABLE_NAME: dynamoTable.tableName },
     });
     const getAllLambda = new NodejsFunction(this, "getAllItemsFunction", {
       entry: join(__dirname, lambdasPath, "get-all.ts"),
       ...nodeJsFunctionProps,
+      environment: { DYNAMO_TABLE_NAME: dynamoTable.tableName },
     });
     const uploadItemLambda = new NodejsFunction(this, "uploadItemFunction", {
       entry: join(__dirname, lambdasPath, "upload-item.ts"),
       ...nodeJsFunctionProps,
-      environment: { S3_BUCKET: s3BucketOriginal.bucketName },
+      environment: {
+        S3_BUCKET: s3BucketOriginal.bucketName,
+        DYNAMO_TABLE_NAME: dynamoTable.tableName,
+      },
     });
     const deleteOneLambda = new NodejsFunction(this, "deleteItemFunction", {
       entry: join(__dirname, lambdasPath, "delete-one.ts"),
       ...nodeJsFunctionProps,
+      environment: { DYNAMO_TABLE_NAME: dynamoTable.tableName },
     });
     const resizeImageLambda = new NodejsFunction(this, "resizeImageFunction", {
       entry: join(__dirname, lambdasPath, "resize-image.ts"),

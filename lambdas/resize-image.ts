@@ -29,7 +29,7 @@ export const handler = async (event: Event) => {
 
         const originalImage = await uploadToS3(
           process.env.S3_BUCKET_RESIZED!,
-          id + ".jpg",
+          imagePrefix(id) + ".jpg",
           imageBuffer,
           "image/jpeg"
         );
@@ -42,7 +42,7 @@ export const handler = async (event: Event) => {
 
         // Example URLs and IDs
         await storeS3Url(
-          ulid(),
+          id,
           originalImage,
           resizedImages[0],
           resizedImages[1],
@@ -92,9 +92,16 @@ async function resizeImageAndUpload(
   image.resize(width, height);
   const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
   const bucket = process.env.S3_BUCKET_RESIZED!;
-  const key = `${id}/${width}x${height}-${id}.jpg`;
+  const key = `${imagePrefix(id, width, height)}.jpg`;
 
   return uploadToS3(bucket, key, buffer, "image/jpeg");
+}
+
+function imagePrefix(id: string, width?: number, height?: number) {
+  if (!width || !height) {
+    return `${id}/${id}`;
+  }
+  return `${id}/${width}x${height}-${id}`;
 }
 
 async function uploadToS3(

@@ -1,14 +1,32 @@
-import AWS from "aws-sdk";
-import { ulid } from "ulidx";
+import { db } from "../utils/aws";
+import { addUrlToImage } from "../utils/images";
 
-export const handler = async (event: any = {}): Promise<any> => {
-  const s3 = new AWS.S3();
+type EventParams = {
+  pathParameters: { id: string };
+};
 
-  const presignedGetOneURL = s3.getSignedUrl("getOneItem", {
-    Bucket: "presignedurldemo",
-    Key: ulid(), //filename
-    Expires: 100, //time to expire in seconds
-  });
+export const handler = async (event: EventParams): Promise<any> => {
+  const id = event.pathParameters.id;
 
-  return presignedGetOneURL;
+  if (!id) {
+    return {
+      statusCode: 400,
+      body: `Error: You are missing the path parameter id`,
+    };
+  }
+
+  const params = {
+    TableName: process.env.DYNAMO_TABLE_NAME,
+    Key: {
+      itemId: id,
+    },
+  };
+
+  try {
+    const response = await db.get(params);
+    const data = addUrlToImage(response.Item!);
+    return { statusCode: 200, body: JSON.stringify(data) };
+  } catch (dbError) {
+    return { statusCode: 500, body: JSON.stringify(dbError) };
+  }
 };
