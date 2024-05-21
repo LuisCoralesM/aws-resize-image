@@ -8,7 +8,7 @@ import { Readable } from "stream";
 import { ulid } from "ulidx";
 import { Event } from "../types/event";
 import { db, s3 } from "../utils/aws";
-import { sizes } from "../utils/images";
+import { setFileExt, sizes } from "../utils/images";
 
 export const handler = async (event: Event) => {
   try {
@@ -20,16 +20,24 @@ export const handler = async (event: Event) => {
         const key = record.s3.object.key;
 
         const imageBuffer = await fetchImageFromS3(bucket, key);
+        const fileExt = setFileExt(imageBuffer);
+
+        if (fileExt !== ".jpeg" && fileExt !== ".png") {
+          const error = "File is not an image";
+          console.error("Error processing image:", error);
+          throw error;
+        }
+
         const image = await Jimp.read(imageBuffer);
 
         const originalImage = await uploadToS3(
           process.env.S3_BUCKET_RESIZED!,
-          imagePrefix(id) + ".jpg",
+          `${imagePrefix(id)}.${fileExt}`,
           imageBuffer,
-          "image/jpeg"
+          setContentType(fileExt)
         );
 
-        const resizedImages = await resizeAndUploadImages(id, image);
+        const resizedImages = await resizeAndUploadImages(id, fileExt, image);
         console.log("Resized images uploaded:", resizedImages);
 
         const deleteResponse = await deleteS3Item(bucket, key);
@@ -45,11 +53,19 @@ export const handler = async (event: Event) => {
         );
       })
     );
+    return { statusCode: 200, body: "Images resized!" };
   } catch (error) {
     console.error("Error processing image:", error);
-    throw error;
+    return { statusCode: 500, body: JSON.stringify(error) };
   }
 };
+
+function setContentType(fileExt: string) {
+  if (fileExt === "jpg" || fileExt === "jpeg") {
+    return "image/jpeg";
+  }
+  return "image/png";
+}
 
 async function fetchImageFromS3(bucket: string, key: string): Promise<Buffer> {
   const command = new GetObjectCommand({ Bucket: bucket, Key: key });
@@ -69,10 +85,11 @@ async function bufferizeStream(stream: Readable): Promise<Buffer> {
 
 async function resizeAndUploadImages(
   id: string,
+  fileExt: string,
   image: Jimp
 ): Promise<string[]> {
   const uploadPromises = sizes.map(([width, height]) =>
-    resizeImageAndUpload(id, image.clone(), width, height)
+    resizeImageAndUpload(id, fileExt, image.clone(), width, height)
   );
 
   return Promise.all(uploadPromises);
@@ -80,16 +97,18 @@ async function resizeAndUploadImages(
 
 async function resizeImageAndUpload(
   id: string,
+  fileExt: string,
   image: Jimp,
   width: number,
   height: number
 ): Promise<string> {
   image.resize(width, height);
-  const buffer = await image.getBufferAsync(Jimp.MIME_JPEG);
+  const contentType = setContentType(fileExt);
+  const buffer = await image.getBufferAsync(contentType);
   const bucket = process.env.S3_BUCKET_RESIZED!;
-  const key = `${imagePrefix(id, width, height)}.jpg`;
+  const key = `${imagePrefix(id, width, height)}.${fileExt}`;
 
-  return uploadToS3(bucket, key, buffer, "image/jpeg");
+  return uploadToS3(bucket, key, buffer, contentType);
 }
 
 function imagePrefix(id: string, width?: number, height?: number) {

@@ -46,6 +46,7 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
       environment: {
         PRIMARY_KEY: "itemId",
         TABLE_NAME: dynamoTable.tableName,
+        S3_BASE_URL: process.env.S3_BASE_URL!,
       },
       runtime: Runtime.NODEJS_20_X,
     };
