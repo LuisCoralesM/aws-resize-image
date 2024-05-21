@@ -27,7 +27,7 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
       objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
       removalPolicy: RemovalPolicy.DESTROY,
       autoDeleteObjects: true,
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      publicReadAccess: true,
     });
 
     const dynamoTable = new Table(this, "allImages", {
