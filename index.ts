@@ -1,14 +1,14 @@
 import {
   App,
-  RemovalPolicy,
+  Duration,
+  Size,
   Stack,
   aws_lambda_event_sources,
   aws_sqs,
 } from "aws-cdk-lib";
 import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
 import { AttributeType, Table } from "aws-cdk-lib/aws-dynamodb";
-import * as iam from "aws-cdk-lib/aws-iam";
-import { Architecture, Runtime } from "aws-cdk-lib/aws-lambda";
+import { Runtime } from "aws-cdk-lib/aws-lambda";
 import {
   NodejsFunction,
   NodejsFunctionProps,
@@ -23,7 +23,7 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
   constructor(app: App, id: string) {
     super(app, id);
 
-    const s3BucketOriginal = new s3.Bucket(this, "originalImages", {
+    const s3BucketOriginal = new s3.Bucket(this, "imagesToResize", {
       objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
@@ -33,21 +33,12 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
 
-    s3BucketResized.grantRead(new iam.AccountRootPrincipal());
-
     const dynamoTable = new Table(this, "items", {
       partitionKey: {
         name: "itemId",
         type: AttributeType.STRING,
       },
       tableName: "items",
-
-      /**
-       *  The default removal policy is RETAIN, which means that cdk destroy will not attempt to delete
-       * the new table, and it will remain in your account until manually deleted. By setting the policy to
-       * DESTROY, cdk destroy will delete the table (even if it has data in it)
-       */
-      removalPolicy: RemovalPolicy.DESTROY, // NOT recommended for production code
     });
 
     const nodeJsFunctionProps: NodejsFunctionProps = {
@@ -84,10 +75,13 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
     const resizeImageLambda = new NodejsFunction(this, "resizeImageFunction", {
       entry: join(__dirname, lambdasPath, "resize-image.ts"),
       ...nodeJsFunctionProps,
-      bundling: {
-        nodeModules: ["sharp"],
+      environment: {
+        S3_BUCKET: s3BucketOriginal.bucketName,
+        S3_BUCKET_RESIZED: s3BucketResized.bucketName,
+        DYNAMO_TABLE_NAME: dynamoTable.tableName,
       },
-      architecture: Architecture.X86_64,
+      timeout: Duration.minutes(1),
+      memorySize: Size.gibibytes(1).toMebibytes(),
     });
 
     const queue = new aws_sqs.Queue(this, "resizeImageQueue", {});
@@ -110,6 +104,7 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
     dynamoTable.grantReadWriteData(getOneLambda);
     dynamoTable.grantReadWriteData(createOneLambda);
     dynamoTable.grantReadWriteData(deleteOneLambda);
+    dynamoTable.grantReadWriteData(resizeImageLambda);
 
     // Integrate the Lambda functions with the API Gateway resource
     const getAllIntegration = new LambdaIntegration(getAllLambda);
@@ -120,8 +115,6 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
     // Create an API Gateway resource for each of the CRUD operations
     const api = new RestApi(this, "itemsApi", {
       restApiName: "Items Service",
-      // In case you want to manage binary types, uncomment the following
-      // binaryMediaTypes: ["*/*"],
     });
 
     const items = api.root.addResource("items");
@@ -133,6 +126,8 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
     singleItem.addMethod("DELETE", deleteOneIntegration);
 
     s3BucketOriginal.grantReadWrite(createOneLambda);
+    s3BucketOriginal.grantReadWrite(resizeImageLambda);
+    s3BucketResized.grantReadWrite(resizeImageLambda);
   }
 }
 

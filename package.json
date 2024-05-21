@@ -6,6 +6,7 @@
   "author": "Luis Corales",
   "license": "MIT",
   "dependencies": {
+    "@aws-cdk/aws-iam": "^1.204.0",
     "@aws-cdk/aws-lambda-event-sources": "^1.204.0",
     "@aws-cdk/aws-s3": "^1.204.0",
     "@aws-sdk/client-dynamodb": "^3.577.0",
@@ -15,7 +16,8 @@
     "aws-cdk-lib": "^2.142.1",
     "aws-sdk": "^2.1623.0",
     "constructs": "^10.0.0",
-    "sharp": "^0.32.4",
+    "jimp": "^0.22.12",
+    "sharp": "^0.32.6",
     "ulidx": "^2.3.0"
   },
   "devDependencies": {
