@@ -1,13 +1,6 @@
-import {
-  App,
-  Duration,
-  Size,
-  Stack,
-  aws_lambda_event_sources,
-  aws_sqs,
-} from "aws-cdk-lib";
+import { App, Duration, RemovalPolicy, Size, Stack } from "aws-cdk-lib";
 import { LambdaIntegration, RestApi } from "aws-cdk-lib/aws-apigateway";
-import { AttributeType, Table } from "aws-cdk-lib/aws-dynamodb";
+import { AttributeType, BillingMode, Table } from "aws-cdk-lib/aws-dynamodb";
 import { Runtime } from "aws-cdk-lib/aws-lambda";
 import {
   NodejsFunction,
@@ -23,22 +16,25 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
   constructor(app: App, id: string) {
     super(app, id);
 
-    const s3BucketOriginal = new s3.Bucket(this, "imagesToResize", {
+    const s3BucketOriginal = new s3.Bucket(this, "bucketImagesToResize", {
       objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
 
-    const s3BucketResized = new s3.Bucket(this, "resizedImages", {
+    const s3BucketResized = new s3.Bucket(this, "bucketResizedImages", {
       objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
-      publicReadAccess: true,
+      removalPolicy: RemovalPolicy.DESTROY,
+      autoDeleteObjects: true,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
     });
 
-    const dynamoTable = new Table(this, "items", {
+    const dynamoTable = new Table(this, "allImages", {
       partitionKey: {
         name: "itemId",
         type: AttributeType.STRING,
       },
-      tableName: "items",
+      tableName: "allImages",
+      billingMode: BillingMode.PAY_PER_REQUEST,
     });
 
     const nodeJsFunctionProps: NodejsFunctionProps = {
@@ -90,16 +86,6 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
       memorySize: Size.gibibytes(1).toMebibytes(),
     });
 
-    const queue = new aws_sqs.Queue(this, "resizeImageQueue", {});
-
-    const lambdaEventSource = new aws_lambda_event_sources.SqsEventSource(
-      queue,
-      {
-        batchSize: 1,
-      }
-    );
-    resizeImageLambda.addEventSource(lambdaEventSource);
-
     s3BucketOriginal.addEventNotification(
       s3.EventType.OBJECT_CREATED,
       new LambdaDestination(resizeImageLambda)
@@ -119,15 +105,15 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
     const deleteOneIntegration = new LambdaIntegration(deleteOneLambda);
 
     // Create an API Gateway resource for each of the CRUD operations
-    const api = new RestApi(this, "itemsApi", {
-      restApiName: "Items Service",
+    const api = new RestApi(this, "imagesApi", {
+      restApiName: "Images Service",
     });
 
-    const items = api.root.addResource("items");
-    items.addMethod("GET", getAllIntegration);
-    items.addMethod("POST", uploadItemIntegration);
+    const images = api.root.addResource("images");
+    images.addMethod("GET", getAllIntegration);
+    images.addMethod("POST", uploadItemIntegration);
 
-    const singleItem = items.addResource("{id}");
+    const singleItem = images.addResource("{id}");
     singleItem.addMethod("GET", getOneIntegration);
     singleItem.addMethod("DELETE", deleteOneIntegration);
 
@@ -138,5 +124,5 @@ export class ApiLambdaCrudDynamoDBStack extends Stack {
 }
 
 const app = new App();
-new ApiLambdaCrudDynamoDBStack(app, "ApiLambdaResizeImage");
+new ApiLambdaCrudDynamoDBStack(app, "ApiLambdaResizeImages");
 app.synth();

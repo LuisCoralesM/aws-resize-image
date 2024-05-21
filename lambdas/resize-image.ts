@@ -1,19 +1,14 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import {
   DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
-import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import Jimp from "jimp";
 import { Readable } from "stream";
 import { ulid } from "ulidx";
 import { Event } from "../types/event";
-import { s3 } from "../utils/aws";
+import { db, s3 } from "../utils/aws";
 import { sizes } from "../utils/images";
-
-const dbClient = new DynamoDBClient();
-const docClient = DynamoDBDocumentClient.from(dbClient);
 
 export const handler = async (event: Event) => {
   try {
@@ -149,7 +144,7 @@ async function storeS3Url(
   };
 
   try {
-    const data = await docClient.send(new PutCommand(params));
+    const data = await db.put(params);
     console.log("S3 URL stored successfully:", data);
   } catch (err) {
     console.error("Error storing S3 URL:", err);

@@ -140,9 +140,9 @@
     constructs "^3.3.69"
     punycode "^2.3.0"
 
-"@aws-cdk/aws-dynamodb@1.204.0":
+"@aws-cdk/aws-dynamodb@1.204.0", "@aws-cdk/aws-dynamodb@^1.204.0":
   version "1.204.0"
-  resolved "https://registry.npmjs.org/@aws-cdk/aws-dynamodb/-/aws-dynamodb-1.204.0.tgz"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-dynamodb/-/aws-dynamodb-1.204.0.tgz#d715a51c58343192e8f6bc6b417190d971428fb4"
   integrity sha512-mJhbrmLiRa2etpzH2Uyz5429+YXIQeZqg0uXESEDLf5xCoypmwXn3zdxcBlz2sIbhTZcWta8s+dqIIor+GcMJQ==
   dependencies:
     "@aws-cdk/aws-applicationautoscaling" "1.204.0"
@@ -237,17 +237,7 @@
     "@aws-cdk/core" "1.204.0"
     constructs "^3.3.69"
 
-"@aws-cdk/aws-iam@1.204.0":
-  version "1.204.0"
-  resolved "https://registry.npmjs.org/@aws-cdk/aws-iam/-/aws-iam-1.204.0.tgz"
-  integrity sha512-Fh2egW3v/uDdw3m4jvcupS7COL/+sJl2NHjz9l298ddyMxqDwJD2NQwE8mvgPLK4rDtAtDnE0c8RS6d+NWiC+w==
-  dependencies:
-    "@aws-cdk/core" "1.204.0"
-    "@aws-cdk/cx-api" "1.204.0"
-    "@aws-cdk/region-info" "1.204.0"
-    constructs "^3.3.69"
-
-"@aws-cdk/aws-iam@^1.204.0":
+"@aws-cdk/aws-iam@1.204.0", "@aws-cdk/aws-iam@^1.204.0":
   version "1.204.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-iam/-/aws-iam-1.204.0.tgz#badff9e72fb8321e868ec9e01d1c87e9e1c8fc13"
   integrity sha512-Fh2egW3v/uDdw3m4jvcupS7COL/+sJl2NHjz9l298ddyMxqDwJD2NQwE8mvgPLK4rDtAtDnE0c8RS6d+NWiC+w==
@@ -304,6 +294,32 @@
 "@aws-cdk/aws-lambda@1.204.0":
   version "1.204.0"
   resolved "https://registry.npmjs.org/@aws-cdk/aws-lambda/-/aws-lambda-1.204.0.tgz"
+  integrity sha512-r0XXovrLAx8Q8Fz915SwzyQM/KLhEB6YCp3CsWliFGSOHEjRP8yX8UZdEJqe5kYD7Th9JAhUVzKgyv20P7g5Tg==
+  dependencies:
+    "@aws-cdk/aws-applicationautoscaling" "1.204.0"
+    "@aws-cdk/aws-cloudwatch" "1.204.0"
+    "@aws-cdk/aws-codeguruprofiler" "1.204.0"
+    "@aws-cdk/aws-ec2" "1.204.0"
+    "@aws-cdk/aws-ecr" "1.204.0"
+    "@aws-cdk/aws-ecr-assets" "1.204.0"
+    "@aws-cdk/aws-efs" "1.204.0"
+    "@aws-cdk/aws-events" "1.204.0"
+    "@aws-cdk/aws-iam" "1.204.0"
+    "@aws-cdk/aws-kms" "1.204.0"
+    "@aws-cdk/aws-logs" "1.204.0"
+    "@aws-cdk/aws-s3" "1.204.0"
+    "@aws-cdk/aws-s3-assets" "1.204.0"
+    "@aws-cdk/aws-signer" "1.204.0"
+    "@aws-cdk/aws-sns" "1.204.0"
+    "@aws-cdk/aws-sqs" "1.204.0"
+    "@aws-cdk/core" "1.204.0"
+    "@aws-cdk/cx-api" "1.204.0"
+    "@aws-cdk/region-info" "1.204.0"
+    constructs "^3.3.69"
+
+"@aws-cdk/aws-lambda@^1.204.0":
+  version "1.204.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-lambda/-/aws-lambda-1.204.0.tgz#2b5a7f6a75ddb82a6960fae2ab0ea6041d4250d8"
   integrity sha512-r0XXovrLAx8Q8Fz915SwzyQM/KLhEB6YCp3CsWliFGSOHEjRP8yX8UZdEJqe5kYD7Th9JAhUVzKgyv20P7g5Tg==
   dependencies:
     "@aws-cdk/aws-applicationautoscaling" "1.204.0"
@@ -492,7 +508,7 @@
     jsonschema "^1.4.1"
     semver "^7.3.8"
 
-"@aws-cdk/core@1.204.0":
+"@aws-cdk/core@1.204.0", "@aws-cdk/core@^1.204.0":
   version "1.204.0"
   resolved "https://registry.npmjs.org/@aws-cdk/core/-/core-1.204.0.tgz"
   integrity sha512-yO/flJ9ihpzRhLTEqlbdbuPGtyyghHiiQPkUTLslwUM5vThVTbpgvW4UQHSGqytyst4MYXrN2jQn2RkwIRU57g==
