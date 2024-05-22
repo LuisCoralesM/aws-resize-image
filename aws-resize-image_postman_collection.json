@@ -1,0 +1,236 @@
+{
+	"info": {
+		"_postman_id": "4fdd55fa-0ab9-483a-bd33-0dfce38d3ae5",
+		"name": "AWS RESIZE IMAGE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15526282"
+	},
+	"item": [
+		{
+			"name": "POST Get predesigned url",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var toJson = JSON.parse(responseBody);\r",
+							"pm.globals.set(\"presignedPost\", toJson.url);\r",
+							"pm.globals.set(\"key\", toJson.fields.key);\r",
+							"pm.globals.set(\"Content-Type\", toJson.fields[\"Content-Type\"]);\r",
+							"pm.globals.set(\"bucket\", toJson.fields.bucket);\r",
+							"pm.globals.set(\"X-Amz-Algorithm\", toJson.fields[\"X-Amz-Algorithm\"]);\r",
+							"pm.globals.set(\"X-Amz-Credential\", toJson.fields[\"X-Amz-Credential\"]);\r",
+							"pm.globals.set(\"X-Amz-Date\", toJson.fields[\"X-Amz-Date\"]);\r",
+							"pm.globals.set(\"X-Amz-Security-Token\", toJson.fields[\"X-Amz-Security-Token\"]);\r",
+							"pm.globals.set(\"Policy\", toJson.fields[\"Policy\"]);\r",
+							"pm.globals.set(\"X-Amz-Signature\", toJson.fields[\"X-Amz-Signature\"]);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "",
+							"type": "file",
+							"src": []
+						}
+					]
+				},
+				"url": {
+					"raw": "https://lkmvy157e3.execute-api.us-east-1.amazonaws.com/prod/images",
+					"protocol": "https",
+					"host": [
+						"lkmvy157e3",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"prod",
+						"images"
+					]
+				},
+				"description": "Post request to get predesigned url"
+			},
+			"response": []
+		},
+		{
+			"name": "UPLOAD IMAGE Predesign Post URL",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "bucket",
+							"value": "{{bucket}}",
+							"type": "text"
+						},
+						{
+							"key": "X-Amz-Algorithm",
+							"value": "{{X-Amz-Algorithm}}",
+							"type": "text"
+						},
+						{
+							"key": "X-Amz-Credential",
+							"value": "{{X-Amz-Credential}}",
+							"type": "text"
+						},
+						{
+							"key": "X-Amz-Date",
+							"value": "{{X-Amz-Date}}",
+							"type": "text"
+						},
+						{
+							"key": "X-Amz-Security-Token",
+							"value": "{{X-Amz-Security-Token}}",
+							"type": "text"
+						},
+						{
+							"key": "key",
+							"value": "{{key}}",
+							"type": "text"
+						},
+						{
+							"key": "Content-Type",
+							"value": "image/png",
+							"type": "text"
+						},
+						{
+							"key": "Policy",
+							"value": "{{Policy}}",
+							"type": "text"
+						},
+						{
+							"key": "X-Amz-Signature",
+							"value": "{{X-Amz-Signature}}",
+							"type": "text"
+						},
+						{
+							"key": "file",
+							"type": "file",
+							"src": "/C:/Users/luisa/Desktop/1024px-Sky_Blue.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{presignedPost}}",
+					"host": [
+						"{{presignedPost}}"
+					]
+				},
+				"description": "Post request to upload image, will only allow PNG or JPG"
+			},
+			"response": []
+		},
+		{
+			"name": "GET ONE IMAGE",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://lkmvy157e3.execute-api.us-east-1.amazonaws.com/prod/images/{{itemId}}",
+					"protocol": "https",
+					"host": [
+						"lkmvy157e3",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"prod",
+						"images",
+						"{{itemId}}"
+					]
+				},
+				"description": "Get request to get one image (and it's variants) from DynamoDB by itemId"
+			},
+			"response": []
+		},
+		{
+			"name": "GET ALL IMAGES",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var toJson = JSON.parse(responseBody);\r",
+							"pm.globals.set(\"itemId\", toJson[0].itemId);\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://lkmvy157e3.execute-api.us-east-1.amazonaws.com/prod/images",
+					"protocol": "https",
+					"host": [
+						"lkmvy157e3",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"prod",
+						"images"
+					]
+				},
+				"description": "Get request to get all images (and it's variants) from DynamoDB"
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE ONE IMAGE",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "https://lkmvy157e3.execute-api.us-east-1.amazonaws.com/prod/images/{{itemId}}",
+					"protocol": "https",
+					"host": [
+						"lkmvy157e3",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"prod",
+						"images",
+						"{{itemId}}"
+					]
+				},
+				"description": "Delete request to delete one image (and it's variants) from DynamoDB by itemId"
+			},
+			"response": []
+		}
+	]
+}
