@@ -43,7 +43,7 @@ You can import [this file](aws-resize-image_postman_collection.json) into Postma
 ![image](https://github.com/LuisCoralesM/aws-resize-image/assets/101592507/6e5fe0dc-ac55-4338-9edf-b39e3e763045)
 
 4. Request to get one image listed by id
-![image](https://github.com/LuisCoralesM/aws-resize-image/assets/101592507/ffbd7401-f1ca-4257-8d94-69a501260ef4)
+![image](https://github.com/LuisCoralesM/aws-resize-image/assets/101592507/7bff9941-ba23-4a53-9978-14dfa6114dda)
 
 5. Request to delete one image by id
 ![image](https://github.com/LuisCoralesM/aws-resize-image/assets/101592507/33e9edf5-25b7-4df1-a134-245d18b88f48)
